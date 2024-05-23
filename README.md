@@ -1,6 +1,6 @@
 # Client
 
-Este projeto é responsável pela interface de usuário para visualização e gestão de informações de produtos e histórico de preços. Ele se conecta ao backend para buscar e exibir os dados.
+Este projeto é responsável pela interface de usuário para visualização e gestão de informações de produtos e histórico de preços. Ele se conecta ao backend para buscar e exibir os dados, é obrigatório que o projeto server esteja rodando antes de executar este.
 
 ## Índice
 
