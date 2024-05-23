@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { useQuery } from '@apollo/client';
 import createApolloClient from '../app/apollo-client';
 import { gql } from '../__generated__';
@@ -18,41 +18,48 @@ const GET_PRODUCTS = gql(/* GraphQL */`
   }
 `);
 
-const ProductList: React.FC = () => {
-  const [search, setSearch] = useState('');
-  const { loading, error, data } = useQuery(GET_PRODUCTS, {
-    client,
-  });
+const ProductList = () => {
+  const { loading, error, data } = useQuery(GET_PRODUCTS, { client });
+  const [searchTerm, setSearchTerm] = useState('');
 
-  if (loading) return <div className="spinner">Loading...</div>;
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredProducts = data?.products?.filter((product) =>
+    product.title.toLowerCase().includes(searchTerm.toLowerCase())
+  ) ?? [];
+
+  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const filteredProducts = data?.products?.filter((product: { title: string }) =>
-    product.title.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Product Search</h1>
+    <div className="container mx-auto p-2">
+      <div className="mb-8">
         <input
           type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search products by name"
-          className="border rounded px-2 py-1"
+          placeholder="Pesquisar produtos"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="border rounded-lg p-2 w-full"
         />
       </div>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        {filteredProducts?.map((product: { id: number; title: string; imageUrl: string }) => (
-          <li key={product.id} className="border rounded p-4">
-            <Link href={`/products/${product.id}`}>
-                <img src={product.imageUrl} alt={product.title} className="w-full h-64 object-cover mb-2" />
-                <p className="text-lg font-semibold">{product.title}</p>
-            </Link>
-          </li>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {filteredProducts.map((product) => (
+          <Link key={product.id} href={`/products/${product.id}`} className="border rounded-lg p-4 flex flex-col items-center">
+              <div className="w-full h-56 rounded-lg mb-4">
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-full h-full object-contain rounded-lg"
+                  />
+                )}
+              </div>
+              <p className="text-lg font-semibold">{product.title}</p>
+          </Link>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
