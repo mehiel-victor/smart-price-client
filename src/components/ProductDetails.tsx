@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import createApolloClient from '../app/apollo-client';
+import client from '../app/apollo-client';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
-import { StarIcon as StarIconFilled, BuildingStorefrontIcon } from '@heroicons/react/24/solid';
-
-const client = createApolloClient();
+import { HeartIcon as HeartOutline, HeartIcon as HeartSolid, StarIcon as StarIconFilled, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 
 const GET_PRODUCT_DETAILS = gql`
   query GetProductDetails($id: Float!) {
@@ -67,32 +63,20 @@ interface Product {
   productInfo: ProductInfo[];
 }
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value / 100);
-};
+const formatCurrency = (value: number) => 
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value / 100);
 
 const getSellerLogo = (seller: string) => {
-  switch (seller.toLowerCase()) {
-    case 'samsung':
-      return 'https://logos-world.net/wp-content/uploads/2020/04/Samsung-Symbol.png';
-    case 'amazon':
-      return 'https://i.pinimg.com/originals/5a/62/70/5a62706bc5603694b1bd08acc40d3096.png';
-    case 'tradeinn':
-      return 'https://catracalivre.com.br/cdn-cgi/image/f=auto,q=60,w=1200,h=900,fit=cover,format=jpeg/wp-content/uploads/2024/01/tradeinn-logo.png';
-    case 'magazineluiza':
-      return 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr20quaDHJBBSxsLn8C95mK0ZD6bsibG5h0uC0bk_8xA&s';
-    case 'kabum':
-      return 'https://logodownload.org/wp-content/uploads/2017/11/kabum-logo-1.png';
-    case 'xtreme informática':
-      return 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5xCiUK6c7XYp9Gjia4YyM0r-zcm1MSUvnWe_6Qd3vtQ&s';
-    case 'mercado livre':
-      return 'https://vectorseek.com/wp-content/uploads/2023/08/Mercado-Livre-Icon-Logo-Vector.svg-.png';
-    default:
-      return '';
-  }
+  const logos: { [key: string]: string } = {
+    'samsung': 'https://logos-world.net/wp-content/uploads/2020/04/Samsung-Symbol.png',
+    'amazon': 'https://i.pinimg.com/originals/5a/62/70/5a62706bc5603694b1bd08acc40d3096.png',
+    'tradeinn': 'https://catracalivre.com.br/cdn-cgi/image/f=auto,q=60,w=1200,h=900,fit=cover,format=jpeg/wp-content/uploads/2024/01/tradeinn-logo.png',
+    'magazineluiza': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr20quaDHJBBSxsLn8C95mK0ZD6bsibG5h0uC0bk_8xA&s',
+    'kabum': 'https://logodownload.org/wp-content/uploads/2017/11/kabum-logo-1.png',
+    'xtreme informática': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5xCiUK6c7XYp9Gjia4YyM0r-zcm1MSUvnWe_6Qd3vtQ&s',
+    'mercado livre': 'https://vectorseek.com/wp-content/uploads/2023/08/Mercado-Livre-Icon-Logo-Vector.svg-.png',
+  };
+  return logos[seller.toLowerCase()] || '';
 };
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ productId }) => {
@@ -125,18 +109,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId }) => {
   if (error) return <p>Error: {error.message}</p>;
   if (!data?.product) return <p>Product not found</p>;
 
-  const product: Product = data.product;
+  const { product } = data;
   const latestPrice = product.prices[product.prices.length - 1];
-
-  const images = product.productInfo.map((info: ProductInfo) => ({ id: info.id, url: info.imageUrl }));
-  const priceHistory = product.prices.map((price: Price) => ({
-    name: new Date(price.createdAt).toLocaleDateString(),
-    price: price.med / 100,
-    seller: price.seller,
+  const priceHistory = product.prices.map(({ createdAt, med, seller }) => ({
+    name: new Date(createdAt).toLocaleDateString(),
+    price: med / 100,
+    seller,
   }));
 
   return (
-    <div className="relative container mx-auto p-6">
+    <div className="container mx-auto p-6">
       {showNotification && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-xl transition-opacity duration-300">
           Produto favoritado com sucesso
@@ -145,13 +127,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId }) => {
       <div className="flex flex-col lg:flex-row bg-white p-10" style={{ height: '80vh' }}>
         <div className="flex lg:w-2/4">
           <div className="flex flex-col items-center justify-center space-y-2 mr-4">
-            {images.map((image) => (
-              <div key={image.id} className="w-24 h-24 bg-white rounded-xl overflow-hidden">
+            {product.productInfo.map(({ id, imageUrl }) => (
+              <div key={id} className="w-24 h-24 bg-white rounded-xl overflow-hidden">
                 <img
-                  src={image.url}
+                  src={imageUrl}
                   alt="Thumbnail"
                   className="w-full h-full object-contain cursor-pointer"
-                  onClick={() => setSelectedImage(image.url)}
+                  onClick={() => setSelectedImage(imageUrl)}
                 />
               </div>
             ))}
@@ -217,20 +199,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId }) => {
       <div>
         <div className="mt-8 bg-white rounded-xl p-6 w-full">
           <div className="space-y-8">
-            {product.productInfo.map((info: ProductInfo) => (
-              <div key={info.id} className="flex items-center justify-between bg-white shadow-md p-8 rounded-xl">
+            {product.productInfo.map(({ id, seller, scrapedFromUrl, imageUrl, price }) => (
+              <div key={id} className="flex items-center justify-between bg-white shadow-md p-8 rounded-xl">
                 <div className="flex items-center">
                   <div className="w-12 h-12 rounded-xl mr-4">
-                    <img src={getSellerLogo(info.seller) || info.imageUrl} alt="Seller" className="w-full h-full object-contain rounded-xl" />
+                    <img src={getSellerLogo(seller) || imageUrl} alt="Seller" className="w-full h-full object-contain rounded-xl" />
                   </div>
                   <div className="flex items-center text-gray-700 text-sm font-bold">
                     <BuildingStorefrontIcon className="h-5 w-5 mr-2" />
-                    <a href={info.scrapedFromUrl} target="_blank" rel="noopener noreferrer" className="text-center">
-                      Veja o produto na {info.seller}.
+                    <a href={scrapedFromUrl} target="_blank" rel="noopener noreferrer" className="text-center">
+                      Veja o produto na {seller}.
                     </a>
                   </div>
                 </div>
-                <div className="text-lg font-bold text-center">{formatCurrency(info.price)}</div>
+                <div className="text-lg font-bold text-center">{formatCurrency(price)}</div>
               </div>
             ))}
           </div>

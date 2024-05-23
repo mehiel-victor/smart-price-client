@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Client
 
-## Getting Started
+Este projeto é responsável pela interface de usuário para visualização e gestão de informações de produtos e histórico de preços. Ele se conecta ao backend para buscar e exibir os dados.
 
-First, run the development server:
+## Índice
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Pré-requisitos](#pré-requisitos)
+- [Instale as dependências do projeto](#instale-as-dependências-do-projeto)
+- [Configuração](#configuração)
+- [Executando o Projeto](#executando-o-projeto)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Scripts Disponíveis](#scripts-disponíveis)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Pré-requisitos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Certifique-se de ter os seguintes softwares instalados:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- [Node.js](https://nodejs.org/) (versão 16 ou superior)
 
-## Learn More
+## Instale as dependências do projeto
 
-To learn more about Next.js, take a look at the following resources:
+1. Clone o repositório:
+   ```
+   git clone https://github.com/mehiel-victor/client
+   cd client 
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Instale as dependências do projeto:
+  ```
+    npm install
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Configuração
 
-## Deploy on Vercel
+### Crie um arquivo .env.local na raiz do projeto e adicione as seguintes variáveis de ambiente:
+  ```
+  NEXT_PUBLIC_API_URL=http://localhost:3000/graphql
+  ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Executando o Projeto
+### Inicie o servidor de desenvolvimento:
+  ```
+  npm run dev
+  ```
+A aplicação estará disponível em http://localhost:3001.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## EEstrutura do Projeto
+  ```
+  /src
+    /app
+      /products
+        /[id]
+          page.tsx        # Página de detalhes do produto
+      apollo-client.ts    # Configuração do Apollo Client
+      layout.tsx          # Layout principal da aplicação
+      page.tsx            # Página inicial da aplicação
+    /components
+      ProductDetails.tsx  # Componente para exibir detalhes do produto
+      ProductList.tsx     # Componente para listar e pesquisar produtos
+    /public
+      favicon.ico
+    globals.css           # Estilos globais
+  /__generated__
+    fragment-masking.ts
+    gql.ts
+    graphql.ts
+    index.ts
+  /.eslintrc.json         # Configurações do ESLint
+  /package.json           # Dependências e scripts do projeto
+  /tsconfig.json          # Configurações do TypeScript
+  /.gitignore             # Arquivos e pastas a serem ignorados pelo Git
+  ```
+
+## Scripts Disponíveis
+  ```
+  npm run dev: Inicia a aplicação.
+  npm run build: Cria a build para produção.
+  npm run start: Inicia a aplicação em modo de produção.
+  npm run lint: Verifica o código com o ESLint.
+  ```
