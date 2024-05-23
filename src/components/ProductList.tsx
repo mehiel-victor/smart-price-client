@@ -1,14 +1,11 @@
 "use client"
 
 import React, { useState, ChangeEvent } from 'react';
-import { useQuery } from '@apollo/client';
-import createApolloClient from '../app/apollo-client';
-import { gql } from '../__generated__';
+import { useQuery, gql } from '@apollo/client';
+import client from '../app/apollo-client';
 import Link from 'next/link';
 
-const client = createApolloClient();
-
-const GET_PRODUCTS = gql(/* GraphQL */`
+const GET_PRODUCTS = gql`
   query GetProducts {
     products {
       id
@@ -16,10 +13,16 @@ const GET_PRODUCTS = gql(/* GraphQL */`
       imageUrl
     }
   }
-`);
+`;
 
-const ProductList = () => {
-  const { loading, error, data } = useQuery(GET_PRODUCTS, { client });
+interface Product {
+  id: string;
+  title: string;
+  imageUrl: string;
+}
+
+const ProductList: React.FC = () => {
+  const { loading, error, data } = useQuery<{ products: Product[] }>(GET_PRODUCTS, { client });
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,18 +48,14 @@ const ProductList = () => {
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {filteredProducts.map((product) => (
-          <Link key={product.id} href={`/products/${product.id}`} className="border rounded-lg p-4 flex flex-col items-center">
-              <div className="w-full h-56 rounded-lg mb-4">
-                {product.imageUrl && (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="w-full h-full object-contain rounded-lg"
-                  />
-                )}
-              </div>
-              <p className="text-lg font-semibold">{product.title}</p>
+        {filteredProducts.map(({ id, title, imageUrl }) => (
+          <Link key={id} href={`/products/${id}`} className="border rounded-lg p-4 flex flex-col items-center">
+            <div className="w-full h-56 rounded-lg mb-4">
+              {imageUrl && (
+                <img src={imageUrl} alt={title} className="w-full h-full object-contain rounded-lg" />
+              )}
+            </div>
+            <p className="text-lg font-semibold">{title}</p>
           </Link>
         ))}
       </div>
